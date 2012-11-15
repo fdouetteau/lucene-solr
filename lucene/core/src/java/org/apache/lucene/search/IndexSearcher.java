@@ -643,7 +643,8 @@ public class IndexSearcher {
    * can then directly be used to get a {@link Scorer}.
    * @lucene.internal
    */
-  public Weight createNormalizedWeight(Query query) throws IOException {
+  public Weight
+  createNormalizedWeight(Query query) throws IOException {
     query = rewrite(query);
     Weight weight = query.createWeight(this);
     float v = weight.getValueForNormalization();
