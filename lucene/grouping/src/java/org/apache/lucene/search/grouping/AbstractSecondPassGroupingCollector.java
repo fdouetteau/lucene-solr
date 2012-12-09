@@ -69,7 +69,9 @@ public abstract class AbstractSecondPassGroupingCollector<GROUP_VALUE_TYPE> exte
       final TopDocsCollector<?> collector;
       if (withinGroupSort == null) {
         // Sort by score
-        collector = TopScoreDocCollector.create(maxDocsPerGroup, true);
+        //collector = TopScoreDocCollector.create(maxDocsPerGroup, true);
+        // TODO should be a parameter
+        collector = new OutOfOrderTopTaggedScoreDocCollector(maxDocsPerGroup);
       } else {
         // Sort by fields
         collector = TopFieldCollector.create(withinGroupSort, maxDocsPerGroup, fillSortFields, getScores, getMaxScores, true);
