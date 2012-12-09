@@ -129,6 +129,11 @@ class BooleanScorer2 extends Scorer {
     }
 
     @Override
+    public long bitmask() {
+      return scorer.bitmask();
+    }
+
+    @Override
     public int freq() throws IOException {
       return 1;
     }
@@ -310,6 +315,17 @@ class BooleanScorer2 extends Scorer {
     coordinator.nrMatchers = 0;
     float sum = countingSumScorer.score();
     return sum * coordinator.coordFactors[coordinator.nrMatchers];
+  }
+
+  public long bitmask() {
+    return countingSumScorer.bitmask();
+//    for(Scorer scorer : requiredScorers) {
+//        bitmask = bitmask | scorer.bitmask();
+//    }
+//    for(Scorer scorer : optionalScorers) {
+//      bitmask = bitmask | scorer.bitmask();
+//    }
+//    return bitmask;
   }
 
   @Override

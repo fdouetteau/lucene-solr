@@ -47,9 +47,12 @@ public abstract class TopDocsCollector<T extends ScoreDoc> extends Collector {
 
   /** The total number of documents that the collector encountered. */
   protected int totalHits;
+
+  protected long[] bitmask_counts;
   
   protected TopDocsCollector(PriorityQueue<T> pq) {
     this.pq = pq;
+    this.bitmask_counts = new long[63];
   }
   
   /**
@@ -69,7 +72,7 @@ public abstract class TopDocsCollector<T extends ScoreDoc> extends Collector {
    * topDocs were invalid.
    */
   protected TopDocs newTopDocs(ScoreDoc[] results, int start) {
-    return results == null ? EMPTY_TOPDOCS : new TopDocs(totalHits, results);
+    return results == null ? EMPTY_TOPDOCS : new TopDocs(totalHits, results, Float.NaN,  bitmask_counts);
   }
   
   /** The total number of documents that matched this query. */

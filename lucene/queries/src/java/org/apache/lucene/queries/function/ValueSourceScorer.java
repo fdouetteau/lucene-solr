@@ -87,6 +87,10 @@ public class ValueSourceScorer extends Scorer {
     return values.floatVal(doc);
   }
 
+  public long bitmask() {
+    return 0;
+  }
+
   @Override
   public int freq() throws IOException {
     return 1;

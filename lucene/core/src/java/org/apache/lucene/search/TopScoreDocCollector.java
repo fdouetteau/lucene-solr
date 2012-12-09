@@ -59,6 +59,7 @@ public abstract class TopScoreDocCollector extends TopDocsCollector<ScoreDoc> {
       }
       pqTop.doc = doc + docBase;
       pqTop.score = score;
+      pqTop.bitmask = scorer.bitmask();
       pqTop = pq.updateTop();
     }
     
@@ -67,6 +68,18 @@ public abstract class TopScoreDocCollector extends TopDocsCollector<ScoreDoc> {
       return false;
     }
   }
+
+  protected void collectBitMask(long bitmask) {
+    if (bitmask == 0) {
+      return;
+    }
+    for(int i = 0; i < 62; i++) {
+        if((bitmask & (1L << i)) != 0) {
+            bitmask_counts[i] ++;
+        }
+    }
+  }
+
   
   // Assumes docs are scored in order.
   private static class InOrderPagingScoreDocCollector extends TopScoreDocCollector {
@@ -104,6 +117,7 @@ public abstract class TopScoreDocCollector extends TopDocsCollector<ScoreDoc> {
       collectedHits++;
       pqTop.doc = doc + docBase;
       pqTop.score = score;
+      pqTop.bitmask = scorer.bitmask();
       pqTop = pq.updateTop();
     }
 
@@ -154,6 +168,7 @@ public abstract class TopScoreDocCollector extends TopDocsCollector<ScoreDoc> {
       }
       pqTop.doc = doc;
       pqTop.score = score;
+      pqTop.bitmask = scorer.bitmask();
       pqTop = pq.updateTop();
     }
     
@@ -199,6 +214,7 @@ public abstract class TopScoreDocCollector extends TopDocsCollector<ScoreDoc> {
       collectedHits++;
       pqTop.doc = doc;
       pqTop.score = score;
+      pqTop.bitmask = scorer.bitmask();
       pqTop = pq.updateTop();
     }
     
@@ -224,6 +240,44 @@ public abstract class TopScoreDocCollector extends TopDocsCollector<ScoreDoc> {
     }
   }
 
+  private static class OutOfOrderTopScoreBitMaskDocCollector extends TopScoreDocCollector {
+
+    OutOfOrderTopScoreBitMaskDocCollector(int numHits) {
+      super(numHits);
+    }
+
+    @Override
+    public void collect(int doc) throws IOException {
+      float score = scorer.score();
+      long bitmask = scorer.bitmask();
+
+      // This collector cannot handle NaN
+      assert !Float.isNaN(score);
+
+      collectBitMask(bitmask);
+      totalHits++;
+      if (score < pqTop.score) {
+        // Doesn't compete w/ bottom entry in queue
+        return;
+      }
+      doc += docBase;
+      if (score == pqTop.score && doc > pqTop.doc) {
+        // Break tie in score by doc ID:
+        return;
+      }
+      pqTop.doc = doc;
+      pqTop.score = score;
+      pqTop.bitmask = bitmask;
+      pqTop = pq.updateTop();    }
+
+    @Override
+    public boolean acceptsDocsOutOfOrder() {
+      return true;
+    }
+
+
+  }
+
   /**
    * Creates a new {@link TopScoreDocCollector} given the number of hits to
    * collect and whether documents are scored in order by the input
@@ -237,21 +291,32 @@ public abstract class TopScoreDocCollector extends TopDocsCollector<ScoreDoc> {
   public static TopScoreDocCollector create(int numHits, boolean docsScoredInOrder) {
     return create(numHits, null, docsScoredInOrder);
   }
-  
-  /**
-   * Creates a new {@link TopScoreDocCollector} given the number of hits to
-   * collect, the bottom of the previous page, and whether documents are scored in order by the input
-   * {@link Scorer} to {@link #setScorer(Scorer)}.
-   *
-   * <p><b>NOTE</b>: The instances returned by this method
-   * pre-allocate a full array of length
-   * <code>numHits</code>, and fill the array with sentinel
-   * objects.
-   */
+
   public static TopScoreDocCollector create(int numHits, ScoreDoc after, boolean docsScoredInOrder) {
+      return create(numHits, after, docsScoredInOrder, false);
+  }
+
+    /**
+    * Creates a new {@link TopScoreDocCollector} given the number of hits to
+    * collect, the bottom of the previous page, and whether documents are scored in order by the input
+    * {@link Scorer} to {@link #setScorer(Scorer)}.
+    *
+    * <p><b>NOTE</b>: The instances returned by this method
+    * pre-allocate a full array of length
+    * <code>numHits</code>, and fill the array with sentinel
+    * objects.
+    */
+  public static TopScoreDocCollector create(int numHits, ScoreDoc after, boolean docsScoredInOrder, boolean bitmask_counts) {
     
     if (numHits <= 0) {
       throw new IllegalArgumentException("numHits must be > 0; please use TotalHitCountCollector if you just need the total hit count");
+    }
+
+    if (bitmask_counts) {
+        if (after != null) {
+            throw new UnsupportedOperationException();
+        }
+      return new OutOfOrderTopScoreBitMaskDocCollector(numHits);
     }
     
     if (docsScoredInOrder) {
@@ -296,7 +361,7 @@ public abstract class TopScoreDocCollector extends TopDocsCollector<ScoreDoc> {
       maxScore = pq.pop().score;
     }
     
-    return new TopDocs(totalHits, results, maxScore);
+    return new TopDocs(totalHits, results, maxScore, bitmask_counts);
   }
   
   @Override

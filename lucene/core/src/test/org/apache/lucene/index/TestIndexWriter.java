@@ -54,7 +54,6 @@ import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.MockDirectoryWrapper;
 import org.apache.lucene.store.NoLockFactory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.store.SimpleFSLockFactory;
 import org.apache.lucene.store.SingleInstanceLockFactory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.LuceneTestCase;
@@ -1705,7 +1704,7 @@ public class TestIndexWriter extends LuceneTestCase {
     // Must use SimpleFSLockFactory... NativeFSLockFactory
     // somehow "knows" a lock is held against write.lock
     // even if you remove that file:
-    d.setLockFactory(new SimpleFSLockFactory());
+    //d.setLockFactory(new SimpleFSLockFactory());
     RandomIndexWriter w1 = new RandomIndexWriter(random(), d);
     w1.deleteAll();
     try {

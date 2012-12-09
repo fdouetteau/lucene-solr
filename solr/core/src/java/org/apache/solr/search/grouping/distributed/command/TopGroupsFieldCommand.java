@@ -126,7 +126,7 @@ public class TopGroupsFieldCommand implements Command<TopGroups<BytesRef>> {
 
     List<Collector> collectors = new ArrayList<Collector>();
     secondPassCollector = new TermSecondPassGroupingCollector(
-          field.getName(), firstPhaseGroups, groupSort, sortWithinGroup, maxDocPerGroup, needScores, needMaxScore, true
+          field.getName(), firstPhaseGroups, groupSort, sortWithinGroup, maxDocPerGroup, needScores, needMaxScore, true, false
     );
     collectors.add(secondPassCollector);
     return collectors;

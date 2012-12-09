@@ -194,6 +194,7 @@ public class QueryComponent extends SearchComponent
     groupingSpec.setMain(params.getBool(GroupParams.GROUP_MAIN, false));
     groupingSpec.setNeedScore((cmd.getFlags() & SolrIndexSearcher.GET_SCORES) != 0);
     groupingSpec.setTruncateGroups(params.getBool(GroupParams.GROUP_TRUNCATE, false));
+    groupingSpec.setComputeBitMaskCounts(params.getBool(GroupParams.GROUP_BITMASK_COUNTS, false));
   }
 
 
@@ -356,7 +357,9 @@ public class QueryComponent extends SearchComponent
             .setDefaultTotalCount(defaultTotalCount)
             .setDocsPerGroupDefault(groupingSpec.getGroupLimit())
             .setGroupOffsetDefault(groupingSpec.getGroupOffset())
-            .setGetGroupedDocSet(groupingSpec.isTruncateGroups());
+            .setGetGroupedDocSet(groupingSpec.isTruncateGroups())
+            .setComputeBitMaskCounts(groupingSpec.getComputeBitMaskCounts())
+        ;
 
         if (groupingSpec.getFields() != null) {
           for (String field : groupingSpec.getFields()) {

@@ -164,6 +164,10 @@ class TermsIncludingScoreQuery extends Query {
       return scores[ords[scoreUpto]];
     }
 
+    public long bitmask() {
+      return 0;
+    }
+
     public Explanation explain() throws IOException {
       return new ComplexExplanation(true, score(), "Score based on join value " + termsEnum.term().utf8ToString());
     }
@@ -316,6 +320,10 @@ class TermsIncludingScoreQuery extends Query {
 
     public float score() throws IOException {
       return scores[currentDoc];
+    }
+
+    public long bitmask() {
+      return 0;
     }
 
     public int freq() throws IOException {

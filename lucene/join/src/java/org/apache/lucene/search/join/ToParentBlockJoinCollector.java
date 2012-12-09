@@ -327,7 +327,13 @@ public class ToParentBlockJoinCollector extends Collector {
     public float score() {
       return score;
     }
-    
+
+    @Override
+    public long bitmask() {
+      return 0;
+    }
+
+
     @Override
     public int freq() {
       return 1; // TODO: does anything else make sense?... duplicate of grouping's FakeScorer btw?
@@ -441,12 +447,13 @@ public class ToParentBlockJoinCollector extends Collector {
 
       final TopDocs topDocs = collector.topDocs(withinGroupOffset, maxDocsPerGroup);
 
-      groups[groupIDX-offset] = new GroupDocs<Integer>(og.score,
-                                                       topDocs.getMaxScore(),
-                                                       og.counts[slot],
-                                                       topDocs.scoreDocs,
-                                                       og.doc,
-                                                       groupSortValues);
+        groups[groupIDX-offset] = new GroupDocs<Integer>(og.score,
+                                                         topDocs.getMaxScore(),
+                                                         og.counts[slot],
+                                                        topDocs.bitmask_counts,
+            topDocs.scoreDocs,
+                                                         og.doc,
+                                                         groupSortValues);
     }
 
     return new TopGroups<Integer>(new TopGroups<Integer>(sort.getSort(),

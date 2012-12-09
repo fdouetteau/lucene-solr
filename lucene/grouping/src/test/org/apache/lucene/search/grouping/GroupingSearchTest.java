@@ -29,9 +29,12 @@ import org.apache.lucene.index.RandomIndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.valuesource.BytesRefFieldSource;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.CachingWrapperFilter;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MaskQuery;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
@@ -251,5 +254,80 @@ public class GroupingSearchTest extends LuceneTestCase {
     assertEquals(1, gs.getAllMatchingGroups().size());
     indexSearcher.getIndexReader().close();
     dir.close();
+  }
+
+  public void testGroupBitMask() throws Exception {
+
+
+    final String groupField = "author";
+
+    FieldType customType = new FieldType();
+    customType.setStored(true);
+
+    Directory dir = newDirectory();
+    RandomIndexWriter w = new RandomIndexWriter(
+        random(),
+        dir,
+        newIndexWriterConfig(TEST_VERSION_CURRENT,
+            new MockAnalyzer(random())).setMergePolicy(newLogMergePolicy()));
+    boolean canUseIDV = true;
+    List<Document> documents = new ArrayList<Document>();
+    // 0
+    Document doc = new Document();
+    addGroupField(doc, groupField, "author1", canUseIDV);
+    doc.add(new TextField("content", "random text", Field.Store.YES));
+    doc.add(new Field("id", "1", customType));
+    documents.add(doc);
+
+    // 1
+    doc = new Document();
+    addGroupField(doc, groupField, "author1", canUseIDV);
+    doc.add(new TextField("content", "some more random text", Field.Store.YES));
+    doc.add(new Field("id", "2", customType));
+    documents.add(doc);
+
+    // 1
+    doc = new Document();
+    addGroupField(doc, groupField, "author2", canUseIDV);
+    doc.add(new TextField("content", "some more random text", Field.Store.YES));
+    doc.add(new Field("id", "2", customType));
+    documents.add(doc);
+
+    w.addDocuments(documents);
+
+
+
+    IndexSearcher indexSearcher = new IndexSearcher(w.getReader());
+    w.close();
+
+    Sort groupSort = Sort.RELEVANCE;
+    GroupingSearch groupingSearch = createRandomGroupingSearch(groupField, groupSort, 5, canUseIDV);
+
+    BooleanQuery query = new BooleanQuery();
+    query.add(new BooleanClause(new MaskQuery(new TermQuery(new Term("content", "random")), 2), BooleanClause.Occur.MUST));
+    query.add(new BooleanClause(new MaskQuery(new TermQuery(new Term("content", "some")), 4), BooleanClause.Occur.SHOULD));
+
+
+    TopGroups<?> groups = groupingSearch.search(indexSearcher, null, query, 0, 10);
+
+    assertEquals(3, groups.totalHitCount);
+    assertEquals(3, groups.totalGroupedHitCount);
+    assertEquals(2, groups.groups.length);
+
+    assertEquals(1, groups.groups[0].scoreDocs[0].doc);
+    assertEquals(6, groups.groups[0].scoreDocs[0].bitmask);
+    assertEquals(0, groups.groups[0].scoreDocs[1].doc);
+    assertEquals(2, groups.groups[0].scoreDocs[1].bitmask);
+    assertEquals(2, groups.groups[1].scoreDocs[0].doc);
+    assertEquals(6, groups.groups[1].scoreDocs[0].bitmask);
+    assertEquals(2, groups.groups[0].bitmask_counts[1]);
+    assertEquals(1, groups.groups[0].bitmask_counts[2]);
+    assertEquals(1, groups.groups[1].bitmask_counts[1]);
+    assertEquals(1, groups.groups[1].bitmask_counts[2]);
+
+    indexSearcher.getIndexReader().close();
+
+    dir.close();
+
   }
 }

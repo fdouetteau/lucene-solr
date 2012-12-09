@@ -137,6 +137,14 @@ class ConjunctionScorer extends Scorer {
     return sum;
   }
 
+  public long bitmask() {
+    long bitmask = 0;
+    for(int i = 0; i < scorers.length; i++) {
+       bitmask = bitmask | scorers[i].bitmask();
+    }
+    return bitmask;
+  }
+
   @Override
   public int freq() throws IOException {
     return scorers.length;

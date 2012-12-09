@@ -482,6 +482,11 @@ class SpatialDistanceQuery extends ExtendedQueryBase implements PostFilter {
     }
 
     @Override
+    public long bitmask() {
+      return 0;
+    }
+
+    @Override
     public int freq() throws IOException {
       return 1;
     }

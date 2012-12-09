@@ -168,6 +168,7 @@ public abstract class TopFieldCollector extends TopDocsCollector<Entry> {
     final void updateBottom(int doc, float score) {
       bottom.doc = docBase + doc;
       bottom.score = score;
+      bottom.bitmask = scorer.bitmask();
       bottom = pq.updateTop();
     }
 
@@ -283,6 +284,7 @@ public abstract class TopFieldCollector extends TopDocsCollector<Entry> {
     final void updateBottom(int doc, float score) {
       bottom.doc = docBase + doc;
       bottom.score = score;
+      bottom.bitmask = scorer.bitmask();
       bottom =  pq.updateTop();
     }
 
@@ -549,6 +551,7 @@ public abstract class TopFieldCollector extends TopDocsCollector<Entry> {
     final void updateBottom(int doc, float score) {
       bottom.doc = docBase + doc;
       bottom.score = score;
+      bottom.bitmask = scorer.bitmask();
       bottom =  pq.updateTop();
     }
 
@@ -699,6 +702,7 @@ public abstract class TopFieldCollector extends TopDocsCollector<Entry> {
     final void updateBottom(int doc, float score) {
       bottom.doc = docBase + doc;
       bottom.score = score;
+      bottom.bitmask = scorer.bitmask();
       bottom = pq.updateTop();
     }
 
@@ -874,6 +878,7 @@ public abstract class TopFieldCollector extends TopDocsCollector<Entry> {
     void updateBottom(int doc, float score) {
       bottom.doc = docBase + doc;
       bottom.score = score;
+      bottom.bitmask = scorer.bitmask();
       bottom = pq.updateTop();
     }
 

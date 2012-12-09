@@ -95,6 +95,11 @@ public class SpanScorer extends Scorer {
   public float score() throws IOException {
     return docScorer.score(doc, freq);
   }
+
+  @Override
+  public long bitmask() {
+      return 0;
+  }
   
   @Override
   public int freq() throws IOException {

@@ -205,6 +205,7 @@ public class TopGroups<GROUP_VALUE_TYPE> {
       mergedGroupDocs[groupIDX] = new GroupDocs<T>(groupScore,
                                                    maxScore,
                                                    totalHits,
+                                                   mergedTopDocs.bitmask_counts,
                                                    mergedScoreDocs,
                                                    groupValue,
                                                    shardGroups[0].groups[groupIDX].groupSortValues);

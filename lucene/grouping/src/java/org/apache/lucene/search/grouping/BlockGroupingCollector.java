@@ -97,6 +97,10 @@ public class BlockGroupingCollector extends Collector {
     public float score() {
       return score;
     }
+
+    public long bitmask() {
+      return 0;
+    }
     
     @Override
     public int freq() {
@@ -363,6 +367,7 @@ public class BlockGroupingCollector extends Collector {
       groups[downTo] = new GroupDocs<Object>(Float.NaN,
                                              topDocs.getMaxScore(),
                                              og.count,
+                                             topDocs.bitmask_counts,
                                              topDocs.scoreDocs,
                                              null,
                                              groupSortValues);

@@ -123,6 +123,16 @@ class DisjunctionSumScorer extends DisjunctionScorer {
   public float score() throws IOException { 
     return (float)score; 
   }
+
+  public long bitmask() {
+    long bitmask = 0;
+    for(Scorer scorer : subScorers) {
+      if (scorer != null && scorer.docID() == doc) {
+        bitmask = bitmask | scorer.bitmask();
+      }
+    }
+    return bitmask;
+  }
    
   @Override
   public int docID() {

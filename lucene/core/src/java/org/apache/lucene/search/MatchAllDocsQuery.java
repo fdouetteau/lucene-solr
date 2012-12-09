@@ -68,6 +68,11 @@ public class MatchAllDocsQuery extends Query {
     }
 
     @Override
+    public long bitmask() {
+      return 0;
+    }
+
+    @Override
     public int freq() {
       return 1;
     }

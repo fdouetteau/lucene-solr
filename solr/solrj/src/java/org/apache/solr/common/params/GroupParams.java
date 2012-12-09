@@ -67,5 +67,7 @@ public interface GroupParams {
   public static final String GROUP_DISTRIBUTED_SECOND = GROUP + ".distributed.second";
 
   public static final String GROUP_DISTRIBUTED_TOPGROUPS_PREFIX = GROUP + ".topgroups.";
+
+  public static final String GROUP_BITMASK_COUNTS = GROUP + ".bitmask";
 }
 

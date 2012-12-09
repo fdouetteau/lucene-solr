@@ -43,6 +43,8 @@ public class TestScoreCachingWrappingScorer extends LuceneTestCase {
       // once per document.
       return idx == scores.length ? Float.NaN : scores[idx++];
     }
+
+    @Override public long bitmask() { return 0;}
     
     @Override public int freq() throws IOException {
       return 1;

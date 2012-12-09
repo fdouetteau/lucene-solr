@@ -257,6 +257,10 @@ public class ToChildBlockJoinQuery extends Query {
       return parentScore;
     }
 
+    public long bitmask() {
+      return 0;
+    }
+
     @Override
     public int freq() throws IOException {
       return parentFreq;

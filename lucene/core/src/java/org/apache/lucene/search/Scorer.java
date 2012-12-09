@@ -95,6 +95,13 @@ public abstract class Scorer extends DocsEnum {
    * {@link Collector#collect}.
    */
   public abstract float score() throws IOException;
+
+  /**
+   * Return the mask of the current document matching the query.
+   * Should be called after score();
+   */
+  public abstract long bitmask();
+
   
   /** returns parent Weight
    * @lucene.experimental

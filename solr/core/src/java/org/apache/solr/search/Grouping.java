@@ -90,6 +90,7 @@ public class Grouping {
   private float maxScore = Float.NEGATIVE_INFINITY;  // max score seen in any doclist
   private boolean signalCacheWarning = false;
   private TimeLimitingCollector timeLimitingCollector;
+  private boolean bitmask_counts;
 
 
   public DocList mainResult;  // output if one of the grouping commands should be used as the main result.
@@ -266,6 +267,11 @@ public class Grouping {
 
   public Grouping setGetGroupedDocSet(boolean getGroupedDocSet) {
     this.getGroupedDocSet = getGroupedDocSet;
+    return this;
+  }
+
+  public Grouping setComputeBitMaskCounts(boolean bitmask_counts) {
+    this.bitmask_counts = bitmask_counts;
     return this;
   }
 
@@ -724,7 +730,7 @@ public class Grouping {
       int groupedDocsToCollect = getMax(groupOffset, docsPerGroup, maxDoc);
       groupedDocsToCollect = Math.max(groupedDocsToCollect, 1);
       secondPass = new TermSecondPassGroupingCollector(
-          groupBy, topGroups, sort, groupSort, groupedDocsToCollect, needScores, needScores, false
+          groupBy, topGroups, sort, groupSort, groupedDocsToCollect, needScores, needScores, false, bitmask_counts
       );
 
       if (totalCount == TotalCount.grouped) {
@@ -787,6 +793,16 @@ public class Grouping {
           nl.add("groupValue", fieldType.toObject(field));
         } else {
           nl.add("groupValue", null);
+        }
+
+        if (group.bitmask_counts != null) {
+          NamedList bt = new SimpleOrderedMap();
+          for(int i = 0; i < group.bitmask_counts.length; i++) {
+            if (group.bitmask_counts[i] > 0) {
+              bt.add(Integer.toString(i), group.bitmask_counts[i]);
+            }
+           }
+          nl.add("bitmask", bt);
         }
 
         addDocList(nl, group);
@@ -854,7 +870,7 @@ public class Grouping {
     protected void finish() throws IOException {
       TopDocsCollector topDocsCollector = (TopDocsCollector) collector.getDelegate();
       TopDocs topDocs = topDocsCollector.topDocs();
-      GroupDocs<String> groupDocs = new GroupDocs<String>(Float.NaN, topDocs.getMaxScore(), topDocs.totalHits, topDocs.scoreDocs, query.toString(), null);
+      GroupDocs<String> groupDocs = new GroupDocs<String>(Float.NaN, topDocs.getMaxScore(), topDocs.totalHits, topDocs.bitmask_counts, topDocs.scoreDocs, query.toString(), null);
       if (main) {
         mainResult = getDocList(groupDocs);
       } else {
@@ -934,7 +950,7 @@ public class Grouping {
       int groupdDocsToCollect = getMax(groupOffset, docsPerGroup, maxDoc);
       groupdDocsToCollect = Math.max(groupdDocsToCollect, 1);
       secondPass = new FunctionSecondPassGroupingCollector(
-          topGroups, sort, groupSort, groupdDocsToCollect, needScores, needScores, false, groupBy, context
+          topGroups, sort, groupSort, groupdDocsToCollect, needScores, needScores, false, groupBy, context, bitmask_counts
       );
 
       if (totalCount == TotalCount.grouped) {

@@ -72,11 +72,15 @@ public abstract class CachingCollector extends Collector {
     // members.
     int doc;
     float score;
-    
+    long bitmask;
+
     private CachedScorer() { super(null); }
 
     @Override
     public final float score() { return score; }
+
+    @Override
+    public long bitmask() { return bitmask; }
     
     @Override
     public final int advance(int target) { throw new UnsupportedOperationException(); }
@@ -96,17 +100,23 @@ public abstract class CachingCollector extends Collector {
 
     private final CachedScorer cachedScorer;
     private final List<float[]> cachedScores;
+    private final List<long[]> cachedMasks;
 
     private Scorer scorer;
     private float[] curScores;
+    private long[] curMasks;
 
     ScoreCachingCollector(Collector other, double maxRAMMB) {
       super(other, maxRAMMB, true);
 
       cachedScorer = new CachedScorer();
       cachedScores = new ArrayList<float[]>();
+      cachedMasks = new ArrayList<long[]>();
       curScores = new float[INITIAL_ARRAY_SIZE];
+      curMasks = new long[INITIAL_ARRAY_SIZE];
       cachedScores.add(curScores);
+      cachedMasks.add(curMasks);
+
     }
 
     ScoreCachingCollector(Collector other, int maxDocsToCache) {
@@ -114,8 +124,11 @@ public abstract class CachingCollector extends Collector {
 
       cachedScorer = new CachedScorer();
       cachedScores = new ArrayList<float[]>();
+      cachedMasks = new ArrayList<long[]>();
       curScores = new float[INITIAL_ARRAY_SIZE];
+      curMasks = new long[INITIAL_ARRAY_SIZE];
       cachedScores.add(curScores);
+      cachedMasks.add(curMasks);
     }
     
     @Override
@@ -125,6 +138,7 @@ public abstract class CachingCollector extends Collector {
         // Cache was too large
         cachedScorer.score = scorer.score();
         cachedScorer.doc = doc;
+        cachedScorer.bitmask = scorer.bitmask();
         other.collect(doc);
         return;
       }
@@ -149,8 +163,10 @@ public abstract class CachingCollector extends Collector {
             cachedSegs.clear();
             cachedDocs.clear();
             cachedScores.clear();
+            cachedMasks.clear();
             cachedScorer.score = scorer.score();
             cachedScorer.doc = doc;
+            cachedScorer.bitmask = scorer.bitmask();
             other.collect(doc);
             return;
           }
@@ -160,11 +176,14 @@ public abstract class CachingCollector extends Collector {
         cachedDocs.add(curDocs);
         curScores = new float[nextLength];
         cachedScores.add(curScores);
+        curMasks = new long[nextLength];
+        cachedMasks.add(curMasks);
         upto = 0;
       }
       
       curDocs[upto] = doc;
       cachedScorer.score = curScores[upto] = scorer.score();
+      cachedScorer.bitmask = curMasks[upto] = scorer.bitmask();
       upto++;
       cachedScorer.doc = doc;
       other.collect(doc);
@@ -186,11 +205,13 @@ public abstract class CachingCollector extends Collector {
             curBase += curDocs.length;
             curDocs = cachedDocs.get(chunkUpto);
             curScores = cachedScores.get(chunkUpto);
+            curMasks = cachedMasks.get(chunkUpto);
             chunkUpto++;
             curUpto = 0;
           }
           cachedScorer.score = curScores[curUpto];
           cachedScorer.doc = curDocs[curUpto];
+          cachedScorer.bitmask = curMasks[curUpto];
           other.collect(curDocs[curUpto++]);
         }
       }

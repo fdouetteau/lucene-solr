@@ -565,6 +565,10 @@ final class SloppyPhraseScorer extends Scorer {
     return docScorer.score(max.doc, sloppyFreq);
   }
 
+  public long bitmask() {
+      return 0;
+  }
+
   @Override
   public int advance(int target) throws IOException {
     sloppyFreq = 0.0f;

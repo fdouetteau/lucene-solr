@@ -771,6 +771,10 @@ public class IndexSearcher {
       public float score() {
         return score;
       }
+
+      public long bitmask() {
+          return 0;
+      }
     }
 
     private final FakeScorer fakeScorer = new FakeScorer();

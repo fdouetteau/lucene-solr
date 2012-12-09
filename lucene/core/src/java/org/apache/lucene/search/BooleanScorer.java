@@ -75,19 +75,24 @@ final class BooleanScorer extends Scorer {
       final BucketTable table = bucketTable;
       final int i = doc & BucketTable.MASK;
       final Bucket bucket = table.buckets[i];
-      
+
+      float score = scorer.score();
+      long bitmask = scorer.bitmask();
+
       if (bucket.doc != doc) {                    // invalid bucket
         bucket.doc = doc;                         // set doc
-        bucket.score = scorer.score();            // initialize score
+        bucket.score = score;                     // initialize score
         bucket.bits = mask;                       // initialize mask
         bucket.coord = 1;                         // initialize coord
+        bucket.bitmask = bitmask;
 
         bucket.next = table.first;                // push onto valid list
         table.first = bucket;
       } else {                                    // valid bucket
-        bucket.score += scorer.score();           // increment score
+        bucket.score += score;                    // increment score
         bucket.bits |= mask;                      // add bits in mask
         bucket.coord++;                           // increment coord
+        bucket.bitmask |= bitmask;
       }
     }
     
@@ -117,6 +122,7 @@ final class BooleanScorer extends Scorer {
     double score;
     int doc = NO_MORE_DOCS;
     int freq;
+    long bitmask;
     
     public BucketScorer(Weight weight) { super(weight); }
     
@@ -134,6 +140,9 @@ final class BooleanScorer extends Scorer {
     
     @Override
     public float score() { return (float)score; }
+
+    @Override
+    public long bitmask() { return bitmask; }
     
   }
 
@@ -146,6 +155,7 @@ final class BooleanScorer extends Scorer {
     int bits;                // used for bool constraints
     int coord;               // count of terms in score
     Bucket next;             // next valid bucket
+    long bitmask;             // result of scorer.bitmask()
   }
   
   /** A simple hash table of document scores within a range. */
@@ -272,6 +282,7 @@ final class BooleanScorer extends Scorer {
             bs.score = current.score * coordFactors[current.coord];
             bs.doc = current.doc;
             bs.freq = current.coord;
+            bs.bitmask = current.bitmask;
             collector.collect(current.doc);
           }
         }
@@ -319,6 +330,11 @@ final class BooleanScorer extends Scorer {
   @Override
   public float score() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long bitmask() {
+    return 0;
   }
 
   @Override

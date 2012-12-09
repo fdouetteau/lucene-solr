@@ -44,9 +44,9 @@ public class TermSecondPassGroupingCollector extends AbstractSecondPassGroupingC
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   public TermSecondPassGroupingCollector(String groupField, Collection<SearchGroup<BytesRef>> groups, Sort groupSort, Sort withinGroupSort,
-                                         int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields)
+                                         int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields, boolean bitmask_counts)
       throws IOException {
-    super(groups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+    super(groups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
     ordSet = new SentinelIntSet(groupMap.size(), -1);
     this.groupField = groupField;
     groupDocs = (SearchGroupDocs<BytesRef>[]) new SearchGroupDocs[ordSet.keys.length];

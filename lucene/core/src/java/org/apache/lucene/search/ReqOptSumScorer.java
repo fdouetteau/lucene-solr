@@ -86,6 +86,15 @@ class ReqOptSumScorer extends Scorer {
   }
 
   @Override
+  public long bitmask() {
+    if (optScorer == null || optScorer.docID() != reqScorer.docID()) {
+        return reqScorer.bitmask();
+    } else {
+      return reqScorer.bitmask() | optScorer.bitmask();
+    }
+  }
+
+  @Override
   public int freq() throws IOException {
     // we might have deferred advance()
     score();

@@ -64,7 +64,8 @@ public abstract class DVSecondPassGroupingCollector<GROUP_VALUE> extends Abstrac
                                                      int maxDocsPerGroup,
                                                      boolean getScores,
                                                      boolean getMaxScores,
-                                                     boolean fillSortFields) throws IOException {
+                                                     boolean fillSortFields,
+                                                     boolean bitmask_counts) throws IOException {
     switch (type) {
       case VAR_INTS:
       case FIXED_INTS_8:
@@ -72,21 +73,21 @@ public abstract class DVSecondPassGroupingCollector<GROUP_VALUE> extends Abstrac
       case FIXED_INTS_32:
       case FIXED_INTS_64:
         // Type erasure b/c otherwise we have inconvertible types...
-        return (DVSecondPassGroupingCollector) new Lng(groupField, type, diskResident, (Collection) searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+        return (DVSecondPassGroupingCollector) new Lng(groupField, type, diskResident, (Collection) searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
       case FLOAT_32:
       case FLOAT_64:
         // Type erasure b/c otherwise we have inconvertible types...
-        return (DVSecondPassGroupingCollector) new Dbl(groupField, type, diskResident, (Collection) searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+        return (DVSecondPassGroupingCollector) new Dbl(groupField, type, diskResident, (Collection) searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
       case BYTES_FIXED_STRAIGHT:
       case BYTES_FIXED_DEREF:
       case BYTES_VAR_STRAIGHT:
       case BYTES_VAR_DEREF:
         // Type erasure b/c otherwise we have inconvertible types...
-        return (DVSecondPassGroupingCollector) new BR(groupField, type, diskResident, (Collection) searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+        return (DVSecondPassGroupingCollector) new BR(groupField, type, diskResident, (Collection) searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
       case BYTES_VAR_SORTED:
       case BYTES_FIXED_SORTED:
         // Type erasure b/c otherwise we have inconvertible types...
-        return (DVSecondPassGroupingCollector) new SortedBR(groupField, type, diskResident, (Collection) searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+        return (DVSecondPassGroupingCollector) new SortedBR(groupField, type, diskResident, (Collection) searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
       default:
         throw new IllegalArgumentException(String.format(Locale.ROOT, "ValueType %s not supported", type));
     }
@@ -96,8 +97,8 @@ public abstract class DVSecondPassGroupingCollector<GROUP_VALUE> extends Abstrac
   final DocValues.Type valueType;
   final boolean diskResident;
 
-  DVSecondPassGroupingCollector(String groupField, DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<GROUP_VALUE>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields) throws IOException {
-    super(searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+  DVSecondPassGroupingCollector(String groupField, DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<GROUP_VALUE>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields, boolean bitmask_counts) throws IOException {
+    super(searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
     this.groupField = groupField;
     this.valueType = valueType;
     this.diskResident = diskResident;
@@ -137,8 +138,8 @@ public abstract class DVSecondPassGroupingCollector<GROUP_VALUE> extends Abstrac
 
     private DocValues.Source source;
 
-    Lng(String groupField, DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<Long>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields) throws IOException {
-      super(groupField, valueType, diskResident, searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+    Lng(String groupField, DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<Long>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields, boolean bitmask_counts) throws IOException {
+      super(groupField, valueType, diskResident, searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
     }
 
     protected SearchGroupDocs<Long> retrieveGroup(int doc) throws IOException {
@@ -154,8 +155,8 @@ public abstract class DVSecondPassGroupingCollector<GROUP_VALUE> extends Abstrac
 
     private DocValues.Source source;
 
-    Dbl(String groupField, DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<Double>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields) throws IOException {
-      super(groupField, valueType, diskResident, searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+    Dbl(String groupField, DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<Double>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields, boolean bitmask_counts) throws IOException {
+      super(groupField, valueType, diskResident, searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
     }
 
     protected SearchGroupDocs<Double> retrieveGroup(int doc) throws IOException {
@@ -172,8 +173,8 @@ public abstract class DVSecondPassGroupingCollector<GROUP_VALUE> extends Abstrac
     private DocValues.Source source;
     private final BytesRef spare = new BytesRef();
 
-    BR(String groupField, DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<BytesRef>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields) throws IOException {
-      super(groupField, valueType, diskResident, searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+    BR(String groupField, DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<BytesRef>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields, boolean bitmask_counts) throws IOException {
+      super(groupField, valueType, diskResident, searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
     }
 
     protected SearchGroupDocs<BytesRef> retrieveGroup(int doc) throws IOException {
@@ -194,8 +195,8 @@ public abstract class DVSecondPassGroupingCollector<GROUP_VALUE> extends Abstrac
     private final SentinelIntSet ordSet;
 
     @SuppressWarnings({"unchecked","rawtypes"})
-    SortedBR(String groupField,  DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<BytesRef>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields) throws IOException {
-      super(groupField, valueType, diskResident, searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields);
+    SortedBR(String groupField,  DocValues.Type valueType, boolean diskResident, Collection<SearchGroup<BytesRef>> searchGroups, Sort groupSort, Sort withinGroupSort, int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields, boolean bitmask_counts) throws IOException {
+      super(groupField, valueType, diskResident, searchGroups, groupSort, withinGroupSort, maxDocsPerGroup, getScores, getMaxScores, fillSortFields, bitmask_counts);
       ordSet = new SentinelIntSet(groupMap.size(), -1);
       groupDocs = (SearchGroupDocs<BytesRef>[]) new SearchGroupDocs[ordSet.keys.length];
     }

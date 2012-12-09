@@ -213,7 +213,12 @@ final class JustCompileSearch {
     public float score() {
       throw new UnsupportedOperationException(UNSUPPORTED_MSG);
     }
-    
+
+
+    @Override
+    public long bitmask() { throw new UnsupportedOperationException(UNSUPPORTED_MSG); }
+
+
     @Override
     public int freq() {
       throw new UnsupportedOperationException(UNSUPPORTED_MSG);

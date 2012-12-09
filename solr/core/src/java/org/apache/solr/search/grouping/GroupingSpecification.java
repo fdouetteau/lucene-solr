@@ -41,6 +41,7 @@ public class GroupingSpecification {
   private Grouping.Format responseFormat;
   private boolean needScore;
   private boolean truncateGroups;
+  private boolean bitmask_counts;
 
   public String[] getFields() {
     return fields;
@@ -164,5 +165,13 @@ public class GroupingSpecification {
 
   public void setTruncateGroups(boolean truncateGroups) {
     this.truncateGroups = truncateGroups;
+  }
+
+  public boolean getComputeBitMaskCounts() {
+    return bitmask_counts;
+  }
+
+  public void setComputeBitMaskCounts(boolean bitmask_counts) {
+      this.bitmask_counts = bitmask_counts;
   }
 }

@@ -198,6 +198,11 @@ final class ExactPhraseScorer extends Scorer {
     return docScorer.score(docID, freq);
   }
 
+  @Override
+  public long bitmask() {
+    return 0;
+  }
+
   private int phraseFreq() throws IOException {
 
     freq = 0;

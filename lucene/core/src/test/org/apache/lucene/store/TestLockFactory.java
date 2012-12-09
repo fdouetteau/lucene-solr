@@ -37,6 +37,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.LuceneTestCase;
 import org.apache.lucene.util._TestUtil;
+import org.apache.lucene.store.SimpleFSLockFactory;
+
 
 public class TestLockFactory extends LuceneTestCase {
 

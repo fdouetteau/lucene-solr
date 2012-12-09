@@ -167,6 +167,11 @@ public class BoostedQuery extends Query {
     }
 
     @Override
+    public long bitmask() {
+      return scorer.bitmask();
+    }
+
+    @Override
     public int freq() throws IOException {
       return scorer.freq();
     }

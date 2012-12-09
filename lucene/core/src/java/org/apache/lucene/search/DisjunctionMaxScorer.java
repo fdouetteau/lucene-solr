@@ -88,6 +88,14 @@ class DisjunctionMaxScorer extends DisjunctionScorer {
     return scoreMax + (scoreSum - scoreMax) * tieBreakerMultiplier;
   }
 
+  public long bitmask() {
+    long bitmask = 0;
+    for(int i = 0; i < subScorers.length; i++) {
+        bitmask = bitmask | subScorers[i].bitmask();
+    }
+    return bitmask;
+  }
+
   // Recursively iterate all subScorers that generated last doc computing sum and max
   private void scoreAll(int root, int size, int doc) throws IOException {
     if (root < size && subScorers[root].docID() == doc) {

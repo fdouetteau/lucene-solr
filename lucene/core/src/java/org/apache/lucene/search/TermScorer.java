@@ -75,6 +75,12 @@ final class TermScorer extends Scorer {
     return docScorer.score(docsEnum.docID(), docsEnum.freq());  
   }
 
+  @Override
+  public long bitmask() {
+     return 0;
+  }
+
+
   /**
    * Advances to the first match beyond the current whose document number is
    * greater than or equal to a given target. <br>

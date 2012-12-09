@@ -50,7 +50,7 @@ public abstract class AbstractSecondPassGroupingCollector<GROUP_VALUE_TYPE> exte
   private int totalGroupedHitCount;
 
   public AbstractSecondPassGroupingCollector(Collection<SearchGroup<GROUP_VALUE_TYPE>> groups, Sort groupSort, Sort withinGroupSort,
-                                             int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields)
+                                             int maxDocsPerGroup, boolean getScores, boolean getMaxScores, boolean fillSortFields, boolean bitmask_counts)
     throws IOException {
 
     //System.out.println("SP init");
@@ -64,10 +64,16 @@ public abstract class AbstractSecondPassGroupingCollector<GROUP_VALUE_TYPE> exte
     this.maxDocsPerGroup = maxDocsPerGroup;
     groupMap = new HashMap<GROUP_VALUE_TYPE, SearchGroupDocs<GROUP_VALUE_TYPE>>(groups.size());
 
+
     for (SearchGroup<GROUP_VALUE_TYPE> group : groups) {
       //System.out.println("  prep group=" + (group.groupValue == null ? "null" : group.groupValue.utf8ToString()));
       final TopDocsCollector<?> collector;
-      if (withinGroupSort == null) {
+
+      if (bitmask_counts) {
+        // Sort by score, keep bitmask_counts
+        collector = TopScoreDocCollector.create(maxDocsPerGroup, null, true, true);
+
+      } else if (withinGroupSort == null) {
         // Sort by score
         collector = TopScoreDocCollector.create(maxDocsPerGroup, true);
       } else {
@@ -131,6 +137,8 @@ public abstract class AbstractSecondPassGroupingCollector<GROUP_VALUE_TYPE> exte
       groupDocsResult[groupIDX++] = new GroupDocs<GROUP_VALUE_TYPE>(Float.NaN,
                                                                     topDocs.getMaxScore(),
                                                                     topDocs.totalHits,
+                                                                    topDocs.bitmask_counts,
+
                                                                     topDocs.scoreDocs,
                                                                     groupDocs.groupValue,
                                                                     group.sortValues);

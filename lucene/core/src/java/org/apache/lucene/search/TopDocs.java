@@ -34,6 +34,9 @@ public class TopDocs {
 
   /** Stores the maximum score value encountered, needed for normalizing. */
   private float maxScore;
+
+  public long[] bitmask_counts;
+
   
   /**
    * Returns the maximum score value encountered. Note that in case
@@ -57,6 +60,11 @@ public class TopDocs {
     this.totalHits = totalHits;
     this.scoreDocs = scoreDocs;
     this.maxScore = maxScore;
+  }
+
+  public TopDocs(int totalHits, ScoreDoc[] scoreDocs, float maxScore, long[] bitmask_counts) {
+    this(totalHits, scoreDocs, maxScore);
+    this.bitmask_counts = bitmask_counts;
   }
 
   // Refers to one hit:
@@ -204,6 +212,9 @@ public class TopDocs {
    *
    * @lucene.experimental */
   public static TopDocs merge(Sort sort, int topN, TopDocs[] shardHits) throws IOException {
+
+
+    // TODO merge bitmask_count if available
 
     final PriorityQueue<ShardRef> queue;
     if (sort == null) {

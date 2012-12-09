@@ -327,6 +327,15 @@ public class CustomScoreQuery extends Query {
     }
 
     @Override
+    public long bitmask() {
+      long bitmask = 0;
+      for(int i = 0; i < valSrcScorers.length; i++) {
+        bitmask = bitmask | valSrcScorers[i].bitmask();
+      }
+      return bitmask;
+    }
+
+    @Override
     public int freq() throws IOException {
       return subQueryScorer.freq();
     }

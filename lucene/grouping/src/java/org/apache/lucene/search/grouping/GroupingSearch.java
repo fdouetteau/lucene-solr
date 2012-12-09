@@ -62,6 +62,7 @@ public class GroupingSearch {
   private boolean fillSortFields;
   private boolean includeScores = true;
   private boolean includeMaxScore = true;
+  private boolean bitmask_counts = false;
 
   private Double maxCacheRAMMB;
   private Integer maxDocsToCache;
@@ -252,11 +253,11 @@ public class GroupingSearch {
     int topNInsideGroup = groupDocsOffset + groupDocsLimit;
     AbstractSecondPassGroupingCollector secondPassCollector;
     if (groupFunction != null) {
-      secondPassCollector = new FunctionSecondPassGroupingCollector((Collection) topSearchGroups, groupSort, sortWithinGroup, topNInsideGroup, includeScores, includeMaxScore, fillSortFields, groupFunction, valueSourceContext);
+      secondPassCollector = new FunctionSecondPassGroupingCollector((Collection) topSearchGroups, groupSort, sortWithinGroup, topNInsideGroup, includeScores, includeMaxScore, fillSortFields, groupFunction, valueSourceContext, false);
     } else if (docValuesType != null) {
-      secondPassCollector = DVSecondPassGroupingCollector.create(groupField, diskResidentDocValues, docValuesType, (Collection) topSearchGroups, groupSort, sortWithinGroup, topNInsideGroup, includeScores, includeMaxScore, fillSortFields);
+      secondPassCollector = DVSecondPassGroupingCollector.create(groupField, diskResidentDocValues, docValuesType, (Collection) topSearchGroups, groupSort, sortWithinGroup, topNInsideGroup, includeScores, includeMaxScore, fillSortFields, false);
     } else {
-      secondPassCollector = new TermSecondPassGroupingCollector(groupField, (Collection) topSearchGroups, groupSort, sortWithinGroup, topNInsideGroup, includeScores, includeMaxScore, fillSortFields);
+      secondPassCollector = new TermSecondPassGroupingCollector(groupField, (Collection) topSearchGroups, groupSort, sortWithinGroup, topNInsideGroup, includeScores, includeMaxScore, fillSortFields, false);
     }
 
     if (cachedCollector != null && cachedCollector.isCached()) {

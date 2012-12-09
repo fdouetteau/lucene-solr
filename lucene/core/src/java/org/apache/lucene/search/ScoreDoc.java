@@ -31,6 +31,9 @@ public class ScoreDoc {
   /** Only set by {@link TopDocs#merge} */
   public int shardIndex;
 
+  /** Query mask **/
+  public long bitmask;
+
   /** Constructs a ScoreDoc. */
   public ScoreDoc(int doc, float score) {
     this(doc, score, -1);
@@ -42,10 +45,17 @@ public class ScoreDoc {
     this.score = score;
     this.shardIndex = shardIndex;
   }
+
+  public ScoreDoc(int doc, float score, int shardIndex, long bitmask) {
+    this.doc = doc;
+    this.score = score;
+    this.shardIndex =shardIndex;
+    this.bitmask = bitmask;
+  }
   
   // A convenience method for debugging.
   @Override
   public String toString() {
-    return "doc=" + doc + " score=" + score + " shardIndex=" + shardIndex;
+    return "doc=" + doc + " score=" + score + " shardIndex=" + shardIndex + " bitmask=" + bitmask;
   }
 }

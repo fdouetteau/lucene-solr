@@ -97,6 +97,14 @@ class ConjunctionTermScorer extends Scorer {
     }
     return sum * coord;
   }
+
+  public long bitmask() {
+    long bitmask = 0;
+    for (DocsAndFreqs docs : docsAndFreqs) {
+        bitmask = bitmask | docs.scorer.bitmask();
+    }
+    return bitmask;
+  }
   
   @Override
   public int freq() {

@@ -35,6 +35,8 @@ public class TestPositiveScoresOnlyCollector extends LuceneTestCase {
     @Override public float score() {
       return idx == scores.length ? Float.NaN : scores[idx];
     }
+
+    @Override public long bitmask() { return 0;}
     
     @Override public int freq() {
       return 1;

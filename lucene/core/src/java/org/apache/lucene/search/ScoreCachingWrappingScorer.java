@@ -79,6 +79,11 @@ public class ScoreCachingWrappingScorer extends Scorer {
   public void score(Collector collector) throws IOException {
     scorer.score(collector);
   }
+
+  @Override
+  public long bitmask() {
+    return scorer.bitmask();
+  }
   
   @Override
   public int advance(int target) throws IOException {

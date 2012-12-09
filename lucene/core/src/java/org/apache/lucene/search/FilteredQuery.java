@@ -202,6 +202,11 @@ public class FilteredQuery extends Query {
     public float score() throws IOException {
       return scorer.score();
     }
+
+    @Override
+    public long bitmask() {
+        return scorer.bitmask();
+    }
     
     @Override
     public int freq() throws IOException { return scorer.freq(); }
@@ -295,6 +300,11 @@ public class FilteredQuery extends Query {
     @Override
     public final float score() throws IOException {
       return scorer.score();
+    }
+
+    @Override
+    public long bitmask() {
+      return scorer.bitmask();
     }
     
     @Override

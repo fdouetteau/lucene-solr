@@ -39,6 +39,13 @@ public class GroupDocs<GROUP_VALUE_TYPE> {
    * withinGroupSort sorted by fields. */
   public final ScoreDoc[] scoreDocs;
 
+  /**
+   * Count for the bitmask. bitmask_count[i] contains the number of documents
+   * in the group with
+   * the ith bit activated
+   */
+  public final long[] bitmask_counts;
+
   /** Total hits within this group */
   public final int totalHits;
 
@@ -49,6 +56,7 @@ public class GroupDocs<GROUP_VALUE_TYPE> {
   public GroupDocs(float score,
                    float maxScore,
                    int totalHits,
+                   long[] bitmask_counts,
                    ScoreDoc[] scoreDocs,
                    GROUP_VALUE_TYPE groupValue,
                    Object[] groupSortValues) {
@@ -56,6 +64,7 @@ public class GroupDocs<GROUP_VALUE_TYPE> {
     this.maxScore = maxScore;
     this.totalHits = totalHits;
     this.scoreDocs = scoreDocs;
+    this.bitmask_counts = bitmask_counts;
     this.groupValue = groupValue;
     this.groupSortValues = groupSortValues;
   }

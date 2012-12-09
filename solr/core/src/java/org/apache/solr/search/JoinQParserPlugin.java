@@ -527,9 +527,16 @@ class JoinQuery extends Query {
       return iter.docID();
     }
 
+
+
     @Override
     public float score() throws IOException {
       return score;
+    }
+
+    @Override
+    public long bitmask() {
+      return 0;
     }
     
     @Override

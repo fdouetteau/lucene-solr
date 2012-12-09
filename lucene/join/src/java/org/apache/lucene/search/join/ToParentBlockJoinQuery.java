@@ -358,6 +358,10 @@ public class ToParentBlockJoinQuery extends Query {
     public float score() throws IOException {
       return parentScore;
     }
+
+    public long bitmask() {
+      return 0;
+    }
     
     @Override
     public int freq() {

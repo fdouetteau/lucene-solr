@@ -159,6 +159,11 @@ public class FunctionQuery extends Query {
     }
 
     @Override
+    public long bitmask() {
+       return 0;
+    }
+
+    @Override
     public int freq() throws IOException {
       return 1;
     }

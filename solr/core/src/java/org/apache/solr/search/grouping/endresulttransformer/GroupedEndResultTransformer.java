@@ -31,6 +31,7 @@ import org.apache.solr.search.SolrIndexSearcher;
 import org.apache.solr.search.grouping.distributed.command.QueryCommandResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,17 @@ public class GroupedEndResultTransformer implements EndResultTransformer {
           } else {
             groupResult.add("groupValue", null);
           }
+          if (group.bitmask_counts != null) {
+            long[] bitmask_counts = group.bitmask_counts;
+            SimpleOrderedMap<Long> bitmask = new SimpleOrderedMap<Long>();
+            for(int i = 0; i < bitmask_counts.length; i++) {
+                if (bitmask_counts[i] != 0) {
+                    bitmask.add(Integer.toString(i), bitmask_counts[i]);
+                }
+            }
+            groupResult.add("bitmaskCounts", bitmask);
+          }
+
           SolrDocumentList docList = new SolrDocumentList();
           docList.setNumFound(group.totalHits);
           if (!Float.isNaN(group.maxScore)) {
