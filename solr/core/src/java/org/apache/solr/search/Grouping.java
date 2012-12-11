@@ -91,6 +91,7 @@ public class Grouping {
   private boolean signalCacheWarning = false;
   private TimeLimitingCollector timeLimitingCollector;
   private boolean bitmask_counts;
+   MaskQParserPlugin.MaskTagMap maskTagMap;
 
 
   public DocList mainResult;  // output if one of the grouping commands should be used as the main result.
@@ -273,6 +274,11 @@ public class Grouping {
   public Grouping setComputeBitMaskCounts(boolean bitmask_counts) {
     this.bitmask_counts = bitmask_counts;
     return this;
+  }
+
+  public Grouping setTagMap(MaskQParserPlugin.MaskTagMap map) {
+      this.maskTagMap = map;
+      return this;
   }
 
   public List<Command> getCommands() {
@@ -799,7 +805,7 @@ public class Grouping {
           NamedList bt = new SimpleOrderedMap();
           for(int i = 0; i < group.bitmask_counts.length; i++) {
             if (group.bitmask_counts[i] > 0) {
-              bt.add(Integer.toString(i), group.bitmask_counts[i]);
+              bt.add(maskTagMap.getTag(i), group.bitmask_counts[i]);
             }
            }
           nl.add("bitmask", bt);

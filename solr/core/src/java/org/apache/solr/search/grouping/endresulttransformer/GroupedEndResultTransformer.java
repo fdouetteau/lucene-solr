@@ -27,6 +27,7 @@ import org.apache.solr.common.util.SimpleOrderedMap;
 import org.apache.solr.handler.component.ResponseBuilder;
 import org.apache.solr.schema.FieldType;
 import org.apache.solr.schema.SchemaField;
+import org.apache.solr.search.MaskQParserPlugin;
 import org.apache.solr.search.SolrIndexSearcher;
 import org.apache.solr.search.grouping.distributed.command.QueryCommandResult;
 
@@ -78,12 +79,13 @@ public class GroupedEndResultTransformer implements EndResultTransformer {
           if (group.bitmask_counts != null) {
             long[] bitmask_counts = group.bitmask_counts;
             SimpleOrderedMap<Long> bitmask = new SimpleOrderedMap<Long>();
+            MaskQParserPlugin.MaskTagMap map = MaskQParserPlugin.MaskTagMap.get(rb.req);
             for(int i = 0; i < bitmask_counts.length; i++) {
                 if (bitmask_counts[i] != 0) {
-                    bitmask.add(Integer.toString(i), bitmask_counts[i]);
+                    bitmask.add(map.getTag(i), bitmask_counts[i]);
                 }
             }
-            groupResult.add("bitmaskCounts", bitmask);
+            groupResult.add("bitmask", bitmask);
           }
 
           SolrDocumentList docList = new SolrDocumentList();

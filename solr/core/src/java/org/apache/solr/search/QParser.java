@@ -44,7 +44,10 @@ public abstract class QParser {
 
   protected String stringIncludingLocalParams;   // the original query string including any local params
   protected boolean valFollowedParams;           // true if the value "qstr" followed the localParams
-  protected int localParamsEnd;                  // the position one past where the localParams ended 
+  protected int localParamsEnd;                  // the position one past where the localParams ended
+
+
+  NamedList<Long> tags = new NamedList<Long>();
 
   /**
    * Constructor for the QParser

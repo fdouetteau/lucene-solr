@@ -62,11 +62,11 @@ public class TestGroupingSearch extends SolrTestCaseJ4 {
     assertU(add(doc("id", "4","name", "author2", "title", "title", "group_si", "2")));
     assertU(add(doc("id", "5","name", "author3", "title", "the title of a title love", "group_si", "1")));
     assertU(commit());
-    assertQ(req("q","({!mask m=8}title:book) OR title:title OR ({!mask m=16}title:love)", "group", "true", "group.field","name", "group.bitmask", "true")
+    assertQ(req("q","({!tag t=bok}title:book) OR title:title OR ({!tag t=16}title:love)", "group", "true", "group.field","name", "group.bitmask", "true")
            ,"//arr[@name='groups']/lst[1]/str[@name='groupValue'][.='author3']"
-          ,"//arr[@name='groups']/lst[2]/lst[@name='bitmask']/long[@name='3'][.='1']"
-          ,"//arr[@name='groups']/lst[1]/lst[@name='bitmask']/long[@name='4'][.='1']"
-          ,"//arr[@name='groups']/lst[3]/lst[@name='bitmask']/long[@name='3'][.='1']"
+          ,"//arr[@name='groups']/lst[2]/lst[@name='bitmask']/long[@name='bok'][.='1']"
+          ,"//arr[@name='groups']/lst[1]/lst[@name='bitmask']/long[@name='bit4'][.='1']"
+          ,"//arr[@name='groups']/lst[3]/lst[@name='bitmask']/long[@name='bok'][.='1']"
     );
 
   }

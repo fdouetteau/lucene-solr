@@ -359,6 +359,7 @@ public class QueryComponent extends SearchComponent
             .setGroupOffsetDefault(groupingSpec.getGroupOffset())
             .setGetGroupedDocSet(groupingSpec.isTruncateGroups())
             .setComputeBitMaskCounts(groupingSpec.getComputeBitMaskCounts())
+            .setTagMap(MaskQParserPlugin.MaskTagMap.get(rb.req))
         ;
 
         if (groupingSpec.getFields() != null) {

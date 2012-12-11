@@ -27,12 +27,52 @@ import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.request.SolrQueryRequest;
 
+import java.util.HashMap;
+
 /**
  * {mask m=4}q Create a query "q" trace with bitset '4'
  */
 public class MaskQParserPlugin extends QParserPlugin {
-  public static String NAME="mask";
-  public static String M="m";
+  public static String NAME="tag";
+  public static String T="t";  // SPecific a string tag that will be allocated as a bit on a bitmask
+
+
+  // Associate a tag with a mask
+  public static class MaskTagMap {
+    int max_bit;
+    String[] tags = new String[64];
+    HashMap<String, Integer> bits = new HashMap<String, Integer>();
+
+    public long getBitmask(String tag) {
+      if (bits.containsKey(tag)) {
+         Integer b = bits.get(tag);
+        return (1L << b);
+      } else {
+        bits.put(tag, max_bit);
+        tags[max_bit] = tag;
+        max_bit ++;
+        return (1L << (max_bit-1));
+      }
+    }
+
+    public String getTag(int bit) {
+      String s = tags[bit];
+      return s == null ? "bit" + Integer.toString(bit) : s;
+    }
+
+    public static MaskTagMap get(SolrQueryRequest req) {
+        Object o = req.getContext().get("MASKTAGMAP");
+      if (o == null) {
+          MaskTagMap m = new MaskTagMap();
+        req.getContext().put("MASKTAGMAP", m);
+        return m;
+      } else {
+          return (MaskTagMap) o;
+      }
+    }
+
+
+  }
 
   public void init(NamedList args) {
   }
@@ -43,15 +83,21 @@ public class MaskQParserPlugin extends QParserPlugin {
       QParser baseParser;
       ValueSource vs;
       String m;
+      String t;
 
       @Override
       public Query parse() throws SyntaxError {
-        m = localParams.get(M);
+        t = localParams.get(T, null);
         baseParser = subQuery(localParams.get(QueryParsing.V), null);
         Query q = baseParser.getQuery();
 
-        if (m == null) return q;
-        long bitmask = Long.parseLong(m);
+
+        long bitmask;
+        try {
+          bitmask = Long.parseLong(t);
+        } catch (NumberFormatException e) {
+          bitmask = MaskTagMap.get(req).getBitmask(t);
+        }
         return new MaskQuery(q, bitmask);
       }
 
